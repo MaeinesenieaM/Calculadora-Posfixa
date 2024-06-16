@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 
 #include <calculadora.h>
 
@@ -16,7 +18,7 @@ enum Operador {
 enum TipoExp {
 	Numero,
 	Operador,
-}
+};
 
 typedef struct Item {
 	TipoExp valor;
@@ -26,7 +28,7 @@ typedef struct Item {
 typede struct {
 	Item *topo;
 	int tamanho;
-} Pilha
+} Pilha;
 
 Pilha *criarPilha() {
 	Pilha *pilha = (Pilha*)malloc(sizeof(Pilha));
@@ -41,6 +43,14 @@ Pilha *criarPilha() {
 	return pilha;
 }
 
+TipoExp topo(Pilha *pilha) {
+	if (pilha->topo == NULL) {
+		printf("!ERROR!\nA PILHA ESTA VAZIA!");
+		exit(103);
+	}
+	return pilha->topo->valor;
+}
+
 Item *criarItem() {
 	Item *item = (Item*)malloc(sizeof(Item));
 	if (item == NULL) {
@@ -48,13 +58,13 @@ Item *criarItem() {
 		exit(102);
 	};
 
-	item->valor = 404;
+	item->valor = 404.0;
 	item->proximo = NULL;
 
 	return item;
 }
 
-void empilha(Pilha *pilha, TipoExp valor) {
+void empilhaDado(Pilha *pilha, TipoExp valor) {
 	Item *item = criarItem();
 	item->valor = valor;
 	item->proximo = pilha->topo;
@@ -63,7 +73,7 @@ void empilha(Pilha *pilha, TipoExp valor) {
 	pilha->tamanho = pilha->tamanho + 1;
 }
 
-TipoExp *desempilhaDado(Pilha *pilha) {	
+TipoExp desempilhaDado(Pilha *pilha) {	
 	if (pilha->topo != NULL) {
 		Item *item = pilha->topo;
 		TipoExp valor = item->valor;
@@ -71,7 +81,7 @@ TipoExp *desempilhaDado(Pilha *pilha) {
 		pilha->tamanho = pilha->tamanho - 1;
 
 		free(item);
-		return valor
+		return valor;
 	}
 	else {
 		printf("!ERROR!\nA PILHA ESTA VAZIA!");
@@ -79,9 +89,42 @@ TipoExp *desempilhaDado(Pilha *pilha) {
 	}
 }
 
+void verificaLetra (char *Str) {
+	int tamanho = strlen(Str);
+	for (int i = 0; i < tamanho; i++) {
+		if (isalpha(Str[i])) {
+			printf("!ERROR!\nNAO E ACEITO LETRAS NA ESPRESSAO!");
+			exit(202);
+		}
+	}
+}
+
+TipoExp classificaDado(char *Str) {
+	switch (Str) {
+		case '(': case ')':
+			printf("!ERROR!\nFORMATO DE EXPRESSAO INCORRETA!");
+			exit(201);
+		case '+':
+			Operador operador = add;
+			return TipoExp dado = operador;
+		case '-':
+			Operador operador = sub;
+			return TipoExp dado = operador;
+		case '*':
+			Operador operador = mult;
+			return TipoExp dado = operador;
+		case '/':
+			Operador operador = div;
+			return TipoExp dado = operador;
+	}
+
+	verificaLetra(Str);
+	Numero num = atoi(Str);
+	return TipoExp dado = num;
+}
+
 Pilha initPilha (char *Str) {
 	Pilha *pilha = criarPilha();
-	Item  *item = criarItem();
 
 	char *letra = strtok(Str, " ");
 	while (letra != NULL) {
@@ -94,9 +137,7 @@ Pilha initPilha (char *Str) {
 			ultimo = ultimo->topo;
 		};
 		ultimo = (Pilha*)malloc(sizeof(Pilha));
-
-
-	}	
+	}
 }
 
 char *getFormaInFixa(char *Str);    // Retorna a forma inFixa de Str (posFixa)
