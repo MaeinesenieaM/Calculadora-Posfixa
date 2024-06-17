@@ -4,9 +4,11 @@
 #include "calculadora.h"
 
 int main () {
-	char eita[] = "2 4 +    2 - 3 3 * + 10 +";
+	char eita[] = "6 2 / 3 + 4 * 10 sen +";
+	char eita2[] = "6 2 / 3 + 4 * 10 sen +";
 	float resultado = getValor(eita);
-	printf("\nResultado: %.2f", resultado);
+	char *teste = getFormaInFixa(eita2);
+	printf("\nEspressao: 6 2 / 3 + 4 * 10 sen +\nResultado: %.2f\n%s", resultado, teste);
 
 	return 0;
 }
