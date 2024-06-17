@@ -17,12 +17,47 @@ typedef struct {
 	int tamanho;
 } Pilha;
 
+enum Operacao {
+	add,	// +
+	sub,	// -
+	mult,	// *
+	div,	// /
+	pow,	// ^
+	log, 	// log
+	cos,	// cos
+	sen,	// sen
+	NONE	// usado qando nenhuma operação foi feita ainda.
+}
+
+void mostraErro(int erro) {
+	//tipos de erro:
+	// 1xx -> culpa do sistema.
+	// 2xx -> culpa do usuario.
+	switch (erro) {
+		case 101:
+			printf("!ERROR! [101]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
+			exit(101);
+		case 102:
+			printf("!ERROR! [102]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
+			exit(102);
+		case 103:
+			printf("!ERROR! [103]\nA PILHA ESTA VAZIA!");
+			exit(103);
+		case 201:
+			printf("!ERROR! [201]\nFORMATO DE EXPRESSAO INCORRETA!");
+			exit(201);
+		case 202:
+			printf("!ERROR! [202]\nNAO E ACEITO LETRAS NA ESPRESSAO!");
+			exit(202);
+		default:
+			printf("!ERROR! [???]\nERRO DESCONHECIDO!");
+			exit(1);
+	}
+}
+
 Pilha *criarPilha() {
 	Pilha *pilha = (Pilha*)malloc(sizeof(Pilha));
-	if (pilha == NULL) {
-		printf("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
-		exit(101);
-	};
+	if (pilha == NULL) mostraErro(101);
 
 	pilha->topo = NULL;
 	pilha->tamanho = 0;
@@ -30,19 +65,13 @@ Pilha *criarPilha() {
 }
 
 float topo(Pilha *pilha) {
-	if (pilha->topo == NULL) {
-		printf("!ERROR!\nA PILHA ESTA VAZIA!");
-		exit(103);
-	}
+	if (pilha->topo == NULL) mostraErro(103);
 	return pilha->topo->valor;
 }
 
 Item *criarItem() {
 	Item *item = (Item*)malloc(sizeof(Item));
-	if (item == NULL) {
-		printf("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
-		exit(102);
-	};
+	if (item == NULL) mostraErro(102);
 
 	item->valor = 404.0;
 	item->proximo = NULL;
@@ -71,19 +100,21 @@ float desempilhaDado(Pilha *pilha) {
 		item = NULL;
 		return valor;
 	}
-	else {
-		printf("!ERROR!\nA PILHA ESTA VAZIA!");
-		exit(103);
+	else mostraErro(103);
+}
+
+void verificaFormato (char *Str) {
+	char formatos[][4] = {"log", "cos", "sen"};
+	for (int i = 0; i < 3; i++) {
+		if (strcmp(Str, formatos[i]) == 0) return;
 	}
+	mostraErro(202);
 }
 
 void verificaLetra (char *Str) {
 	int tamanho = strlen(Str);
 	for (int i = 0; i < tamanho; i++) {
-		if (isalpha(Str[i])) {
-			printf("!ERROR!\nNAO E ACEITO LETRAS NA ESPRESSAO!");
-			exit(202);
-		}
+		if (isalpha(Str[i])) verificaFormato(Str);
 	}
 }
 
@@ -92,8 +123,7 @@ void operacao(Pilha *pilha, char *Str) {
 
 	switch (Str[0]) {
 		case '(': case ')':
-			printf("!ERROR!\nFORMATO DE EXPRESSAO INCORRETA!");
-			exit(201);
+			mostraErro(201);
 		case '+':
 			val1 = desempilhaDado(pilha);
 			val2 = desempilhaDado(pilha);
@@ -121,6 +151,21 @@ void operacao(Pilha *pilha, char *Str) {
 			pow(val2, val1);
 			empilhaDado(pilha, val2);
 			break;
+		case 'l':
+			val1 = desempilhaDado(pilha);
+			log(val1);
+			empilhaDado(pilha, val1);
+			break;
+		case 'c':
+			val1 = desempilhaDado(pilha);
+			cos(val1);
+			empilhaDado(pilha, val1);
+			break;
+		case 's':
+			val1 = desempilhaDado(pilha);
+			sin(val1);
+			empilhaDado(pilha, val1);
+			break;
 		default:
 			float num = atoi(Str);
 			empilhaDado(pilha, num);
@@ -141,7 +186,7 @@ Pilha *initPilha (char *Str) {
 // Calcula o valor de Str (na forma posFixa)
 float getValor(char *Str) {
 	Pilha *pilha = criarPilha();
-	char *letra = strtok(Str, " ");
+	char *letra = strtok(Str, " ,;");
 	while (letra != NULL) {
 		printf("%s ", letra);
 		verificaLetra(letra);
