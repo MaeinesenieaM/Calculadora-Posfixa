@@ -1,31 +1,17 @@
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <ctype.h>
 
 
 #include <calculadora.h>
 
-typedef float Numero;
-
-enum Operador {
-	add, 	// +
-	sub, 	// -
-	mult,	// *
-	div  	// /
-};
-
-enum TipoExp {
-	Numero,
-	Operador,
-};
-
 typedef struct Item {
-	TipoExp valor;
+	float valor;
 	struct Item *proximo;
 } Item;
 
-typede struct {
+typedef struct {
 	Item *topo;
 	int tamanho;
 } Pilha;
@@ -33,7 +19,7 @@ typede struct {
 Pilha *criarPilha() {
 	Pilha *pilha = (Pilha*)malloc(sizeof(Pilha));
 	if (pilha == NULL) {
-		printf ("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
+		printf("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
 		exit(101);
 	};
 
@@ -54,7 +40,7 @@ TipoExp topo(Pilha *pilha) {
 Item *criarItem() {
 	Item *item = (Item*)malloc(sizeof(Item));
 	if (item == NULL) {
-		printf ("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
+		printf("!ERROR!\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
 		exit(102);
 	};
 
@@ -64,7 +50,7 @@ Item *criarItem() {
 	return item;
 }
 
-void empilhaDado(Pilha *pilha, TipoExp valor) {
+void empilhaDado(Pilha *pilha, float valor) {
 	Item *item = criarItem();
 	item->valor = valor;
 	item->proximo = pilha->topo;
@@ -73,14 +59,16 @@ void empilhaDado(Pilha *pilha, TipoExp valor) {
 	pilha->tamanho = pilha->tamanho + 1;
 }
 
-TipoExp desempilhaDado(Pilha *pilha) {	
+float desempilhaDado(Pilha *pilha) {	
 	if (pilha->topo != NULL) {
 		Item *item = pilha->topo;
-		TipoExp valor = item->valor;
+		float valor = item->valor;
+
 		pilha->topo = item->proximo;
 		pilha->tamanho = pilha->tamanho - 1;
 
 		free(item);
+		item = NULL;
 		return valor;
 	}
 	else {
@@ -99,48 +87,72 @@ void verificaLetra (char *Str) {
 	}
 }
 
-TipoExp classificaDado(char *Str) {
+void operacao(Pilha *pilha, char *Str) {
 	switch (Str) {
 		case '(': case ')':
 			printf("!ERROR!\nFORMATO DE EXPRESSAO INCORRETA!");
 			exit(201);
 		case '+':
-			Operador operador = add;
-			return TipoExp dado = operador;
+			float val1 = desempilhaDado(pilha);
+			float val2 = desempilhaDado(pilha);
+			empilhaDado(val2 + val1);
+			break;
 		case '-':
-			Operador operador = sub;
-			return TipoExp dado = operador;
+			float val1 = desempilhaDado(pilha);
+			float val2 = desempilhaDado(pilha);
+			empilhaDado(val2 - val1);
+			break;
 		case '*':
-			Operador operador = mult;
-			return TipoExp dado = operador;
+			float val1 = desempilhaDado(pilha);
+			float val2 = desempilhaDado(pilha);
+			empilhaDado(val2 * val1);
+			break;
 		case '/':
-			Operador operador = div;
-			return TipoExp dado = operador;
+			float val1 = desempilhaDado(pilha);
+			float val2 = desempilhaDado(pilha);
+			if (val1 == 0 && val2 == 0) empilhaDado(0.0);
+			else empilhaDado(val2 / val1);
+			break;
+		case '^':
+			float val1 = desempilhaDado(pilha);
+			float val2 = desempilhaDado(pilha);
+			pow(val2, val1);
+			empilhaDado(val2);
+			break;
+		default:
+			float num = atoi(Str);
+			empilhaDado(pilha, num);
+			break;
 	}
-
-	verificaLetra(Str);
-	Numero num = atoi(Str);
-	return TipoExp dado = num;
 }
-
-Pilha initPilha (char *Str) {
+/*
+Pilha *initPilha (char *Str) {
 	Pilha *pilha = criarPilha();
-
 	char *letra = strtok(Str, " ");
 	while (letra != NULL) {
-		if (pilha->topo == NULL) {
-
-		};
-		Pilha *ultimo = pilha->topo; 
-
-		while (ultimo != NULL) {
-			ultimo = ultimo->topo;
-		};
-		ultimo = (Pilha*)malloc(sizeof(Pilha));
+		TipoExp dado = classificaDado(letra);
+		empilhaDado(pilha, dado);
 	}
+	return pilha;
 }
-
-char *getFormaInFixa(char *Str);    // Retorna a forma inFixa de Str (posFixa)
+*/
+// Calcula o valor de Str (na forma posFixa)
 float getValor(char *Str) {
+	Pilha *pilha = criarPilha();
+	char *letra = strtok(Str, " ");
 
-};          // Calcula o valor de Str (na forma posFixa)
+	while (letra != NULL) {
+		verificaLetra(letra);
+		operacao(pilha, letra);
+		letra = strtok(Str, " ");
+	}
+
+	float valor = desempilhaDado(pilha);
+	free (pilha);
+	pilha = NULL;
+	return (valor)
+};
+
+char *getFormaInFixa(char *Str) {
+
+};    // Retorna a forma inFixa de Str (posFixa)
