@@ -1,10 +1,11 @@
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+
+#include <string.h>
 #include <math.h>
 #include <ctype.h>
 
-
-#include <calculadora.h>
+#include "calculadora.h"
 
 typedef struct Item {
 	float valor;
@@ -25,11 +26,10 @@ Pilha *criarPilha() {
 
 	pilha->topo = NULL;
 	pilha->tamanho = 0;
-
 	return pilha;
 }
 
-TipoExp topo(Pilha *pilha) {
+float topo(Pilha *pilha) {
 	if (pilha->topo == NULL) {
 		printf("!ERROR!\nA PILHA ESTA VAZIA!");
 		exit(103);
@@ -88,36 +88,38 @@ void verificaLetra (char *Str) {
 }
 
 void operacao(Pilha *pilha, char *Str) {
-	switch (Str) {
+	float val1, val2;
+
+	switch (Str[0]) {
 		case '(': case ')':
 			printf("!ERROR!\nFORMATO DE EXPRESSAO INCORRETA!");
 			exit(201);
 		case '+':
-			float val1 = desempilhaDado(pilha);
-			float val2 = desempilhaDado(pilha);
-			empilhaDado(val2 + val1);
+			val1 = desempilhaDado(pilha);
+			val2 = desempilhaDado(pilha);
+			empilhaDado(pilha, val2 + val1);
 			break;
 		case '-':
-			float val1 = desempilhaDado(pilha);
-			float val2 = desempilhaDado(pilha);
-			empilhaDado(val2 - val1);
+			val1 = desempilhaDado(pilha);
+			val2 = desempilhaDado(pilha);
+			empilhaDado(pilha, val2 - val1);
 			break;
 		case '*':
-			float val1 = desempilhaDado(pilha);
-			float val2 = desempilhaDado(pilha);
-			empilhaDado(val2 * val1);
+			val1 = desempilhaDado(pilha);
+			val2 = desempilhaDado(pilha);
+			empilhaDado(pilha, val2 * val1);
 			break;
 		case '/':
-			float val1 = desempilhaDado(pilha);
-			float val2 = desempilhaDado(pilha);
-			if (val1 == 0 && val2 == 0) empilhaDado(0.0);
-			else empilhaDado(val2 / val1);
+			val1 = desempilhaDado(pilha);
+			val2 = desempilhaDado(pilha);
+			if (val1 == 0 && val2 == 0) empilhaDado(pilha, 0);
+			else empilhaDado(pilha, val2 / val1);
 			break;
 		case '^':
-			float val1 = desempilhaDado(pilha);
-			float val2 = desempilhaDado(pilha);
+			val1 = desempilhaDado(pilha);
+			val2 = desempilhaDado(pilha);
 			pow(val2, val1);
-			empilhaDado(val2);
+			empilhaDado(pilha, val2);
 			break;
 		default:
 			float num = atoi(Str);
@@ -140,17 +142,17 @@ Pilha *initPilha (char *Str) {
 float getValor(char *Str) {
 	Pilha *pilha = criarPilha();
 	char *letra = strtok(Str, " ");
-
 	while (letra != NULL) {
+		printf("%s ", letra);
 		verificaLetra(letra);
 		operacao(pilha, letra);
-		letra = strtok(Str, " ");
+		letra = strtok(NULL, " ");
 	}
 
 	float valor = desempilhaDado(pilha);
 	free (pilha);
 	pilha = NULL;
-	return (valor)
+	return (valor);
 };
 
 char *getFormaInFixa(char *Str) {
