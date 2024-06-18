@@ -1,16 +1,6 @@
 #ifndef EXPRESSAO_H
 #define EXPRESSAO_H
 
-typedef struct Item {
-    float valor;
-    struct Item *proximo;
-} Item;
-
-typedef struct {
-    Item *topo;
-    int tamanho;
-} Pilha;
-
 typedef enum {
     NONE,   // usado quando nenhuma operação foi feita ainda.
     NUM,    // quando um número for empilhado.

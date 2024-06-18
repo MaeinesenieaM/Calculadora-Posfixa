@@ -7,6 +7,16 @@
 
 #include "calculadora.h"
 
+typedef struct Item {
+    float valor;
+    struct Item *proximo;
+} Item;
+
+typedef struct {
+    Item *topo;
+    int tamanho;
+} Pilha;
+
 void mostraErro(int erro) {
 	//tipos de erro:
 	// 1xx -> culpa do sistema.
@@ -199,10 +209,16 @@ Operacao operacaoVerifica(Pilha *pilha, char *Str) {
 			return NUM;
 	}
 }
+
 // Calcula o valor de Str (na forma posFixa)
 float getValor(char *Str) {
 	Pilha *pilha = criarPilha();
-	char *letra = strtok(Str, " ,;");
+
+	//Isso Garante que a String anterior possa ser utilizada multiplas vezes.
+	char *posFixa;
+	strcpy(posFixa, Str)
+
+	char *letra = strtok(posFixa, " ,;");
 	while (letra != NULL) {
 		verificaLetra(letra);
 		operacaoPilha(pilha, letra);
@@ -226,6 +242,10 @@ void pareteses(char *Str) {
 char *getFormaInFixa(char *Str) {
 	Pilha *pilha = criarPilha();
 
+	//Isso Garante que a String anterior possa ser utilizada multiplas vezes.
+	char *posFixa;
+	strcpy(posFixa, Str)
+
 	char *inFixa = (char*)malloc(sizeof(char) * 256);
 	sprintf(inFixa, "");
 	char topNum[64];
@@ -233,7 +253,7 @@ char *getFormaInFixa(char *Str) {
 	Operacao ultimoOpera = NONE;		//Este valor nunca vai ser [NUM].
 	Operacao opera = NONE;
 
-	char *letra = strtok(Str, " ,;");
+	char *letra = strtok(posFixa, " ,;");
 	while (letra != NULL) {
 		if (pilha->topo != NULL) sprintf(topNum, "%.0f", topo(pilha));
 
