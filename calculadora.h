@@ -22,6 +22,12 @@ typedef struct {
     float Valor;           // Valor numérico da expressão  
 } Expressao;
 
+Expressao *criarExpressao();
+
+void guardaPosFixa(Expressao *expressao, char *Str);
+void guardaInFixa(Expressao *expressao, char *Str);
+void guardaValor(Expressao *expressao, float num);
+
 char *getFormaInFixa(char *Str);    // Retorna a forma inFixa de Str (posFixa)
 float getValor(char *Str);          // Calcula o valor de Str (na forma posFixa)
 

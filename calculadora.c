@@ -31,6 +31,9 @@ void mostraErro(int erro) {
 		case 103:
 			printf("!ERROR! [103]\nA PILHA ESTA VAZIA!");
 			exit(103);
+		case 104:
+			printf("!ERROR! [103]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A ESPRESSAO");
+			exit(103);
 		case 201:
 			printf("!ERROR! [201]\nFORMATO DE EXPRESSAO INCORRETA!");
 			exit(201);
@@ -42,6 +45,23 @@ void mostraErro(int erro) {
 			exit(1);
 	}
 }
+
+Expressao *criarExpressao() {
+	Expressao *expressao = (Expressao*)malloc(sizeof(Expressao));
+	if (expressao == NULL) mostraErro(104);
+	return expressao;
+}
+
+void guardaPosFixa(Expressao *expressao, char *Str) {
+	strcpy(expressao->posFixa, Str);
+}
+void guardaInFixa(Expressao *expressao, char *Str) {
+	strcpy(expressao->inFixa, Str);
+}
+void guardaValor(Expressao *expressao, float num) {
+	expressao->Valor = num;
+}
+
 
 Pilha *criarPilha() {
 	Pilha *pilha = (Pilha*)malloc(sizeof(Pilha));
@@ -215,8 +235,8 @@ float getValor(char *Str) {
 	Pilha *pilha = criarPilha();
 
 	//Isso Garante que a String anterior possa ser utilizada multiplas vezes.
-	char *posFixa;
-	strcpy(posFixa, Str)
+	char posFixa[512];
+	strcpy(posFixa, Str);
 
 	char *letra = strtok(posFixa, " ,;");
 	while (letra != NULL) {
@@ -243,8 +263,8 @@ char *getFormaInFixa(char *Str) {
 	Pilha *pilha = criarPilha();
 
 	//Isso Garante que a String anterior possa ser utilizada multiplas vezes.
-	char *posFixa;
-	strcpy(posFixa, Str)
+	char posFixa[512];
+	strcpy(posFixa, Str);
 
 	char *inFixa = (char*)malloc(sizeof(char) * 256);
 	sprintf(inFixa, "");
@@ -255,7 +275,7 @@ char *getFormaInFixa(char *Str) {
 
 	char *letra = strtok(posFixa, " ,;");
 	while (letra != NULL) {
-		if (pilha->topo != NULL) sprintf(topNum, "%.0f", topo(pilha));
+		if (pilha->topo != NULL) sprintf(topNum, "%g", topo(pilha));
 
 		verificaLetra(letra);
 
@@ -269,8 +289,8 @@ char *getFormaInFixa(char *Str) {
 
 		opera = operacaoVerifica(pilha, letra);
 		if (opera != NUM) {
-			if (ultimoOpera != NONE && (opera - ultimoOpera > 1 && opera > 4)) pareteses(inFixa);
-			if (ultimoOpera == NONE) sprintf(inFixa,"%.0f", desempilhaDado(pilha));
+			if (ultimoOpera != NONE && (opera - ultimoOpera < -2 && opera > 6)) pareteses(inFixa);
+			if (ultimoOpera == NONE) sprintf(inFixa,"%g", desempilhaDado(pilha));
 
 			char temp[64];
 			switch (opera) {
@@ -301,7 +321,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "sen(%.0f)", desempilhaDado(pilha));
+						sprintf(temp, "sen(%g)", desempilhaDado(pilha));
 						strcpy(topNum, temp);
 					}
 					break;
@@ -312,7 +332,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "cos(%.0f)", desempilhaDado(pilha));
+						sprintf(temp, "cos(%g)", desempilhaDado(pilha));
 						strcpy(topNum, temp);
 					}
 					break;
@@ -323,7 +343,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "tan(%.0f)", desempilhaDado(pilha));
+						sprintf(temp, "tan(%g)", desempilhaDado(pilha));
 						strcpy(topNum, temp);
 					}
 					break;
@@ -334,7 +354,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "log%.0f", desempilhaDado(pilha));
+						sprintf(temp, "log%g", desempilhaDado(pilha));
 						strcpy(topNum, temp);
 					}
 					break;
@@ -345,7 +365,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "raiz(%.0f)", desempilhaDado(pilha));
+						sprintf(temp, "raiz(%g)", desempilhaDado(pilha));
 						strcpy(topNum, temp);
 					}
 					break;
