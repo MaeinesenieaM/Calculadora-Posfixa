@@ -1,6 +1,7 @@
 #ifndef EXPRESSAO_H
 #define EXPRESSAO_H
 
+//Enumeração de operações.
 typedef enum {
     NONE,   // usado quando nenhuma operação foi feita ainda.
     NUM,    // quando um número for empilhado.
@@ -24,6 +25,7 @@ typedef struct {
 
 Expressao *criarExpressao();
 
+//Auto explicaativo.
 void guardaPosFixa(Expressao *expressao, char *Str);
 void guardaInFixa(Expressao *expressao, char *Str);
 void guardaValor(Expressao *expressao, float num);

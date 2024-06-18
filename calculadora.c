@@ -111,6 +111,7 @@ float desempilhaDado(Pilha *pilha) {
 	else mostraErro(103);
 }
 
+//Verifica se a string for algum das operações especiais.
 void verificaTrigonometria (char *Str) {
 	char formatos[][5] = {"sen", "cos", "tan", "log", "raiz"};
 	for (int i = 0; i < 5; i++) {
@@ -119,6 +120,7 @@ void verificaTrigonometria (char *Str) {
 	mostraErro(202);
 }
 
+//Verifica se a string esta no formato correto.
 void verificaLetra (char *Str) {
 	int tamanho = strlen(Str);
 	for (int i = 0; i < tamanho; i++) {
@@ -126,6 +128,7 @@ void verificaLetra (char *Str) {
 	}
 }
 
+//Aplica as operações na pilha.
 void operacaoPilha(Pilha *pilha, char *Str) {
 	float val1, val2;
 
@@ -251,6 +254,7 @@ float getValor(char *Str) {
 	return (valor);
 }
 
+//Cobre a string dada em parenteses.
 void pareteses(char *Str) {
 	char novaStr[256] = "(";
 	strcat(novaStr, Str);
@@ -279,6 +283,7 @@ char *getFormaInFixa(char *Str) {
 
 		verificaLetra(letra);
 
+		//Em situações em specificas onde a pilha esta vazia.
 		if (pilha->topo == NULL && strpbrk(topNum, "(l") != NULL) {
 			char temp[64];
 			sprintf (temp, " %s %s", letra, topNum);
@@ -289,10 +294,12 @@ char *getFormaInFixa(char *Str) {
 
 		opera = operacaoVerifica(pilha, letra);
 		if (opera != NUM) {
+			//estes dois IF são responsaveis por escrever a formula InFixada.
 			if (ultimoOpera != NONE && (opera - ultimoOpera < -2 && opera > 6)) pareteses(inFixa);
 			if (ultimoOpera == NONE) sprintf(inFixa,"%g", desempilhaDado(pilha));
 
 			char temp[64];
+			//Idenfica qual foi a opeação feita e aplica as instruçoes dadas.
 			switch (opera) {
 				case POW:
 					sprintf(temp, " ^ %s", topNum);
