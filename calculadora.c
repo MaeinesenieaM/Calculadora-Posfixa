@@ -352,7 +352,7 @@ char *getFormaInFixa(char *Str) {
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "log%g ", desempilhaDado(pilha));
+						sprintf(temp, "log(%g) ", desempilhaDado(pilha));
 						strcat(inFixa, temp);
 					}
 					break;
