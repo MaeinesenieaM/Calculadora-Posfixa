@@ -25,7 +25,7 @@ typedef struct {
 
 Expressao *criarExpressao();
 
-//Auto explicaativo.
+//Auto explicativo.
 void guardaPosFixa(Expressao *expressao, char *Str);
 void guardaInFixa(Expressao *expressao, char *Str);
 void guardaValor(Expressao *expressao, float num);

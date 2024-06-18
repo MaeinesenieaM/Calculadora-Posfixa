@@ -295,7 +295,7 @@ char *getFormaInFixa(char *Str) {
 		opera = operacaoVerifica(pilha, letra);
 		if (opera != NUM) {
 			//estes dois IF são responsaveis por escrever a formula InFixada.
-			if (ultimoOpera != NONE && (opera - ultimoOpera < -2 && opera > 6)) pareteses(inFixa);
+			if (ultimoOpera != NONE && ultimoOpera != opera && (ultimoOpera - opera <= -2  && opera > 6)) pareteses(inFixa);
 			if (ultimoOpera == NONE) sprintf(inFixa,"%g", desempilhaDado(pilha));
 
 			char temp[64];
