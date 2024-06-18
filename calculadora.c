@@ -32,13 +32,13 @@ void mostraErro(int erro) {
 			printf("!ERROR! [103]\nA PILHA ESTA VAZIA!");
 			exit(103);
 		case 104:
-			printf("!ERROR! [103]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A ESPRESSAO");
+			printf("!ERROR! [103]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A EXPRESSAO");
 			exit(103);
 		case 201:
 			printf("!ERROR! [201]\nFORMATO DE EXPRESSAO INCORRETA!");
 			exit(201);
 		case 202:
-			printf("!ERROR! [202]\nNAO E ACEITO LETRAS NA ESPRESSAO!");
+			printf("!ERROR! [202]\nNAO E ACEITO LETRAS NA EXPRESSAO!");
 			exit(202);
 		default:
 			printf("!ERROR! [???]\nERRO DESCONHECIDO!");
@@ -258,7 +258,7 @@ float getValor(char *Str) {
 void pareteses(char *Str) {
 	char novaStr[256] = "(";
 	strcat(novaStr, Str);
-	strcat(novaStr, ")");
+	strcat(novaStr, ") ");
 	strcpy (Str, novaStr);
 }
 
@@ -279,101 +279,92 @@ char *getFormaInFixa(char *Str) {
 
 	char *letra = strtok(posFixa, " ,;");
 	while (letra != NULL) {
-		if (pilha->topo != NULL) sprintf(topNum, "%g", topo(pilha));
-
 		verificaLetra(letra);
 
-		//Em situações em specificas onde a pilha esta vazia.
-		if (pilha->topo == NULL && strpbrk(topNum, "(l") != NULL) {
-			char temp[64];
-			sprintf (temp, " %s %s", letra, topNum);
-			strcat(inFixa, temp);
-			letra = strtok(NULL, " ,;");
-			continue;
-		}
+		if (pilha->topo != NULL) sprintf(topNum, "%g", topo(pilha));
 
 		opera = operacaoVerifica(pilha, letra);
 		if (opera != NUM) {
 			//estes dois IF são responsaveis por escrever a formula InFixada.
-			if (ultimoOpera != NONE && ultimoOpera != opera && (ultimoOpera - opera <= -2  && opera > 6)) pareteses(inFixa);
-			if (ultimoOpera == NONE) sprintf(inFixa,"%g", desempilhaDado(pilha));
+			if (ultimoOpera != NONE && ultimoOpera != opera && ultimoOpera - opera < -2  && (opera > 6 && ultimoOpera > 6)) pareteses(inFixa);
+			if (ultimoOpera == NONE && opera > 6) sprintf(inFixa,"%g ", desempilhaDado(pilha));
 
 			char temp[64];
 			//Idenfica qual foi a opeação feita e aplica as instruçoes dadas.
 			switch (opera) {
 				case POW:
-					sprintf(temp, " ^ %s", topNum);
+					sprintf(temp, "^ %s ", topNum);
 					strcat(inFixa, temp);
 					break;
 				case MULT:
-					sprintf(temp, " * %s", topNum);
+					sprintf(temp, "* %s ", topNum);
 					strcat(inFixa, temp);
 					break;
 				case DIV:
-					sprintf(temp, " / %s", topNum);
+					sprintf(temp, "/ %s ", topNum);
 					strcat(inFixa, temp);
 					break;
 				case ADD:
-					sprintf(temp, " + %s", topNum);
+					sprintf(temp, "+ %s ", topNum);
 					strcat(inFixa, temp);
 					break;
 				case SUB:
-					sprintf(temp, " - %s", topNum);
+					sprintf(temp, "- %s ", topNum);
 					strcat(inFixa, temp);
 					break;
 				case SEN:
 					if (pilha->topo == NULL) {
 						pareteses(inFixa);
-						sprintf(temp, "sen%s", inFixa);
+						sprintf(temp, "sen%s ", inFixa);
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "sen(%g)", desempilhaDado(pilha));
-						strcpy(topNum, temp);
+						sprintf(temp, "sen(%g) ", desempilhaDado(pilha));
+						strcat(inFixa, temp);
 					}
 					break;
 				case COS:
 					if (pilha->topo == NULL) {
 						pareteses(inFixa);
-						sprintf(temp, "cos%s", inFixa);
+						sprintf(temp, "cos%s ", inFixa);
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "cos(%g)", desempilhaDado(pilha));
-						strcpy(topNum, temp);
+						sprintf(temp, "cos(%g) ", desempilhaDado(pilha));
+						strcat(inFixa, temp);
 					}
 					break;
 				case TAN:
 					if (pilha->topo == NULL) {
 						pareteses(inFixa);
-						sprintf(temp, "tan%s", inFixa);
+						sprintf(temp, "tan%s ", inFixa);
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "tan(%g)", desempilhaDado(pilha));
-						strcpy(topNum, temp);
+						sprintf(temp, "tan(%g) ", desempilhaDado(pilha));
+						strcat(inFixa, temp);
 					}
 					break;
 				case LOG:
 					if (pilha->topo == NULL) {
 						pareteses(inFixa);
-						sprintf(temp, "log%s", inFixa);
+						sprintf(temp, "log%s ", inFixa);
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "log%g", desempilhaDado(pilha));
-						strcpy(topNum, temp);
+						sprintf(temp, "log%g ", desempilhaDado(pilha));
+						strcat(inFixa, temp);
 					}
 					break;
 				case SQRT:
 					if (pilha->topo == NULL) {
 						pareteses(inFixa);
-						sprintf(temp, "raiz%s", inFixa);
+						sprintf(temp, "raiz%s ", inFixa);
 						strcpy(inFixa, temp);
 					}
 					else {
-						sprintf(temp, "raiz(%g)", desempilhaDado(pilha));
-						strcpy(topNum, temp);
+						sprintf(temp, "raiz(%g) ", desempilhaDado(pilha));
+						strcat(inFixa, temp);
 					}
 					break;
 			}
