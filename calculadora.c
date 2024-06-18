@@ -7,30 +7,31 @@
 
 #include "calculadora.h"
 
-typedef struct Item {
-	float valor;
-	struct Item *proximo;
-} Item;
-
-typedef struct {
-	Item *topo;
-	int tamanho;
-} Pilha;
-
-typedef enum {
-	NONE,	// usado quando nenhuma operação foi feita ainda.
-	NUM,	// quando um número for empilhado.
-	SEN,	// sen
-	COS,	// cos
-	LOG, 	// log
-	SUB =  5,	// -
-	ADD =  6,	// +
-	DIV =  8,	// /
-	MULT = 9,	// *
-	POW = 11	// ^
-} Operacao;
-
-void mostraErro(int erro);
+void mostraErro(int erro) {
+	//tipos de erro:
+	// 1xx -> culpa do sistema.
+	// 2xx -> culpa do usuario.
+	switch (erro) {
+		case 101:
+			printf("!ERROR! [101]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
+			exit(101);
+		case 102:
+			printf("!ERROR! [102]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
+			exit(102);
+		case 103:
+			printf("!ERROR! [103]\nA PILHA ESTA VAZIA!");
+			exit(103);
+		case 201:
+			printf("!ERROR! [201]\nFORMATO DE EXPRESSAO INCORRETA!");
+			exit(201);
+		case 202:
+			printf("!ERROR! [202]\nNAO E ACEITO LETRAS NA ESPRESSAO!");
+			exit(202);
+		default:
+			printf("!ERROR! [???]\nERRO DESCONHECIDO!");
+			exit(1);
+	}
+}
 
 Pilha *criarPilha() {
 	Pilha *pilha = (Pilha*)malloc(sizeof(Pilha));
@@ -49,11 +50,6 @@ Item *criarItem() {
 	item->proximo = NULL;
 
 	return item;
-}
-
-int estaVazio(Pilha *pilha) {
-	if (pilha->topo == NULL) return 1;
-	else return 0;
 }
 
 float topo(Pilha *pilha) {
@@ -85,9 +81,9 @@ float desempilhaDado(Pilha *pilha) {
 	else mostraErro(103);
 }
 
-void verificaFormato (char *Str) {
-	char formatos[][4] = {"log", "cos", "sen"};
-	for (int i = 0; i < 3; i++) {
+void verificaTrigonometria (char *Str) {
+	char formatos[][5] = {"sen", "cos", "tan", "log", "raiz"};
+	for (int i = 0; i < 5; i++) {
 		if (strcmp(Str, formatos[i]) == 0) return;
 	}
 	mostraErro(202);
@@ -96,7 +92,7 @@ void verificaFormato (char *Str) {
 void verificaLetra (char *Str) {
 	int tamanho = strlen(Str);
 	for (int i = 0; i < tamanho; i++) {
-		if (isalpha(Str[i])) verificaFormato(Str);
+		if (isalpha(Str[i])) verificaTrigonometria(Str);
 	}
 }
 
@@ -133,19 +129,29 @@ void operacaoPilha(Pilha *pilha, char *Str) {
 			pow(val2, val1);
 			empilhaDado(pilha, val2);
 			break;
-		case 'l':
+		case 's': //sen
 			val1 = desempilhaDado(pilha);
-			val1 = log(val1 * (M_PI / 180));
+			val1 = sin(val1 * (M_PI / 180));
 			empilhaDado(pilha, val1);
 			break;
-		case 'c':
+		case 'c': //cos
 			val1 = desempilhaDado(pilha);
 			val1 = cos(val1 * (M_PI / 180));
 			empilhaDado(pilha, val1);
 			break;
-		case 's':
+		case 't': //tan
 			val1 = desempilhaDado(pilha);
-			val1 = sin(val1 * (M_PI / 180));
+			val1 = tan(val1 * (M_PI / 180));
+			empilhaDado(pilha, val1);
+			break;
+		case 'l': //log
+			val1 = desempilhaDado(pilha);
+			val1 = log10(val1);
+			empilhaDado(pilha, val1);
+			break;
+		case 'r': //sqrt ou raiz
+			val1 = desempilhaDado(pilha);
+			val1 = sqrt(val1);
 			empilhaDado(pilha, val1);
 			break;
 		default:
@@ -177,12 +183,16 @@ Operacao operacaoVerifica(Pilha *pilha, char *Str) {
 		case '^':
 			desempilhaDado(pilha);
 			return POW;
-		case 'l':
-			return LOG;
-		case 'c':
-			return COS;
 		case 's':
 			return SEN;
+		case 'c':
+			return COS;
+		case 't':
+			return TAN;
+		case 'l':
+			return LOG;
+		case 'r':
+			return SQRT;
 		default:
 			float num = atoi(Str);
 			empilhaDado(pilha, num);
@@ -212,12 +222,14 @@ void pareteses(char *Str) {
 	strcpy (Str, novaStr);
 }
 
+// Retorna a forma inFixa de Str (posFixa)
 char *getFormaInFixa(char *Str) {
 	Pilha *pilha = criarPilha();
 
 	char *inFixa = (char*)malloc(sizeof(char) * 256);
 	sprintf(inFixa, "");
 	char topNum[64];
+
 	Operacao ultimoOpera = NONE;		//Este valor nunca vai ser [NUM].
 	Operacao opera = NONE;
 
@@ -227,13 +239,14 @@ char *getFormaInFixa(char *Str) {
 
 		verificaLetra(letra);
 
-		if (estaVazio(pilha) == 1 && strchr(topNum, '(') != NULL) {
+		if (pilha->topo == NULL && strpbrk(topNum, "(l") != NULL) {
 			char temp[64];
 			sprintf (temp, " %s %s", letra, topNum);
 			strcat(inFixa, temp);
 			letra = strtok(NULL, " ,;");
 			continue;
 		}
+
 		opera = operacaoVerifica(pilha, letra);
 		if (opera != NUM) {
 			if (ultimoOpera != NONE && (opera - ultimoOpera > 1 && opera > 4)) pareteses(inFixa);
@@ -261,19 +274,8 @@ char *getFormaInFixa(char *Str) {
 					sprintf(temp, " - %s", topNum);
 					strcat(inFixa, temp);
 					break;
-				case LOG:
-					if (estaVazio(pilha) != 0) {
-						pareteses(inFixa);
-						sprintf(temp, "log%s", inFixa);
-						strcpy(inFixa, temp);
-					}
-					else {
-						sprintf(temp, "log(%.0f)", desempilhaDado(pilha));
-						strcpy(topNum, temp);
-					}
-					break;
 				case SEN:
-					if (estaVazio(pilha) != 0) {
+					if (pilha->topo == NULL) {
 						pareteses(inFixa);
 						sprintf(temp, "sen%s", inFixa);
 						strcpy(inFixa, temp);
@@ -284,7 +286,7 @@ char *getFormaInFixa(char *Str) {
 					}
 					break;
 				case COS:
-					if (estaVazio(pilha) != 0) {
+					if (pilha->topo == NULL) {
 						pareteses(inFixa);
 						sprintf(temp, "cos%s", inFixa);
 						strcpy(inFixa, temp);
@@ -294,8 +296,40 @@ char *getFormaInFixa(char *Str) {
 						strcpy(topNum, temp);
 					}
 					break;
+				case TAN:
+					if (pilha->topo == NULL) {
+						pareteses(inFixa);
+						sprintf(temp, "tan%s", inFixa);
+						strcpy(inFixa, temp);
+					}
+					else {
+						sprintf(temp, "tan(%.0f)", desempilhaDado(pilha));
+						strcpy(topNum, temp);
+					}
+					break;
+				case LOG:
+					if (pilha->topo == NULL) {
+						pareteses(inFixa);
+						sprintf(temp, "log%s", inFixa);
+						strcpy(inFixa, temp);
+					}
+					else {
+						sprintf(temp, "log%.0f", desempilhaDado(pilha));
+						strcpy(topNum, temp);
+					}
+					break;
+				case SQRT:
+					if (pilha->topo == NULL) {
+						pareteses(inFixa);
+						sprintf(temp, "raiz%s", inFixa);
+						strcpy(inFixa, temp);
+					}
+					else {
+						sprintf(temp, "raiz(%.0f)", desempilhaDado(pilha));
+						strcpy(topNum, temp);
+					}
+					break;
 			}
-
 			ultimoOpera = opera;
 		}
 		letra = strtok(NULL, " ,;");
@@ -303,31 +337,4 @@ char *getFormaInFixa(char *Str) {
 	free (pilha);
 	pilha = NULL;
 	return (inFixa);
-
-}    // Retorna a forma inFixa de Str (posFixa)
-
-void mostraErro(int erro) {
-	//tipos de erro:
-	// 1xx -> culpa do sistema.
-	// 2xx -> culpa do usuario.
-	switch (erro) {
-		case 101:
-			printf("!ERROR! [101]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA A PILHA!");
-			exit(101);
-		case 102:
-			printf("!ERROR! [102]\nNAO FOI POSSIVEL ALOCAR MEMORIA PARA UM ITEM!");
-			exit(102);
-		case 103:
-			printf("!ERROR! [103]\nA PILHA ESTA VAZIA!");
-			exit(103);
-		case 201:
-			printf("!ERROR! [201]\nFORMATO DE EXPRESSAO INCORRETA!");
-			exit(201);
-		case 202:
-			printf("!ERROR! [202]\nNAO E ACEITO LETRAS NA ESPRESSAO!");
-			exit(202);
-		default:
-			printf("!ERROR! [???]\nERRO DESCONHECIDO!");
-			exit(1);
-	}
 }
